@@ -9,5 +9,5 @@ clean:
 	rm -rf ./home/home
 
 build:
-	GOOS=linux GOARCH=amd64 go build -o home/home ./home
-	${GOPATH}/bin/build-lambda-zip.exe --output home/home.zip home/home
+	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o home/home ./home
+	cd home && /cygdrive/c/Users/denjj/go/bin/build-lambda-zip.exe --output home.zip home home.html.tpl
