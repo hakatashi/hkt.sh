@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
 <body>
-  <h1>Hello, {{.header}}</h1>
+  <h1>Hello, {{.headers}}</h1>
 </body>
 </html>
