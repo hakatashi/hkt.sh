@@ -3,6 +3,7 @@
 deps:
 	go get -u -v github.com/aws/aws-lambda-go/events
 	go get -u -v github.com/aws/aws-lambda-go/lambda
+	go get -u -v github.com/aws/aws-lambda-go/cmd/build-lambda-zip
 
 clean: 
 	rm -rf ./home/home
