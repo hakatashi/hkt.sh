@@ -38,8 +38,8 @@
       <h1>
         <span>h</span><span>k</span><span>t</span><span>.</span><span>s</span><span>h</span><span>/</span>
       </h1>
-      <div>
-        <a class="mui-btn mui-btn--accent">hkt.sh/i</a>
+      <div class="mui-panel mui--bg-primary mui--text-light mui--z2">
+        ⚠For visitors: Consider every hkt.sh/ links as ephemeral and do not use as permalink.
       </div>
       <h2>Active Endpoints</h2>
       <div class="mui-panel">
