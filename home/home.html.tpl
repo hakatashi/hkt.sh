@@ -1,8 +1,8 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>hkt.sh</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="//cdn.muicss.com/mui-0.10.2/css/mui.min.css" rel="stylesheet">
     <link href="//fonts.googleapis.com/css2?family=Open+Sans:wght@800&display=swap" rel="stylesheet">
@@ -56,8 +56,8 @@
               <td><a href="https://www.worldcubeassociation.org/persons/2018TAKA03">https://www.worldcubeassociation.org/persons/2018TAKA03</a></td>
             </tr>
             <tr>
-              <td><a href="https://hkt.sh/wca">hkt.sh/<strong>wca</strong></a><br><a href="https://hkt.sh/wca">hkt.sh/<strong>wca</strong></a><br><a href="https://hkt.sh/wca">hkt.sh/<strong>wca</strong></a></td>
-              <td><a href="https://www.worldcubeassociation.org/persons/2018TAKA03">https://www.worldcubeassociation.org/persons/2018TAKA03</a></td>
+              <td><a href="https://hkt.sh/pcs">hkt.sh/<strong>pcs</strong></a><br><a href="https://hkt.sh/imascg">hkt.sh/<strong>imascg</strong></a></td>
+              <td><a href="https://pink-check.school/producer/detail/151777916">https://pink-check.school/producer/detail/151777916</a></td>
             </tr>
             <tr>
               <td><a href="https://hkt.sh/wca">hkt.sh/<strong>wca</strong></a><br><a href="https://hkt.sh/wca">hkt.sh/<strong>wca</strong></a><br><a href="https://hkt.sh/wca">hkt.sh/<strong>wca</strong></a></td>

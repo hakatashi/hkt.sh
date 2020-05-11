@@ -10,4 +10,5 @@
 *.zip
 
 home/home
+entry/entry
 samconfig.toml
