@@ -3,6 +3,9 @@
 deps:
 	go get -u -v github.com/aws/aws-lambda-go/events
 	go get -u -v github.com/aws/aws-lambda-go/lambda
+	go get -u -v github.com/aws/aws-sdk-go/aws
+	go get -u -v github.com/aws/aws-sdk-go/aws/session
+	go get -u -v github.com/aws/aws-sdk-go/service/dynamodb
 	go get -u -v github.com/aws/aws-lambda-go/cmd/build-lambda-zip
 
 clean: 
@@ -10,7 +13,7 @@ clean:
 
 build: home/home.zip entry/entry.zip
 
-home/home.zip: home/main.go
+home/home.zip: home/main.go home/home.html.tpl
 	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o home/home ./home
 	cd home && /cygdrive/c/Users/denjj/go/bin/build-lambda-zip.exe --output home.zip home home.html.tpl
 

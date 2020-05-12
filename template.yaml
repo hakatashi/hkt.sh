@@ -15,15 +15,15 @@ Resources:
       Handler: home
       Runtime: go1.x
       Tracing: Active
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EntriesTable
       Events:
         CatchAll:
           Type: Api
           Properties:
             Path: /
             Method: GET
-      Environment:
-        Variables:
-          PARAM1: VALUE
   EntryFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -31,15 +31,29 @@ Resources:
       Handler: entry
       Runtime: go1.x
       Tracing: Active
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EntriesTable
       Events:
         CatchAll:
           Type: Api
           Properties:
             Path: /{name}
             Method: GET
-      Environment:
-        Variables:
-          PARAM1: VALUE
+  EntriesTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: Name
+        Type: String
+      TableName: hkt-sh-entries
+  LinksTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: Id
+        Type: String
+      TableName: hkt-sh-links
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function

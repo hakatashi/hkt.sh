@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>hkt.sh</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="hyper-kinematic technology. shortlinks">
     <link href="//cdn.muicss.com/mui-0.10.2/css/mui.min.css" rel="stylesheet">
     <link href="//fonts.googleapis.com/css2?family=Open+Sans:wght@800&display=swap" rel="stylesheet">
     <script src="//cdn.muicss.com/mui-0.10.2/js/mui.min.js"></script>
