@@ -23,6 +23,7 @@
         font-size: 20vmin;
         line-height: 20vmin;
         text-align: center;
+        text-shadow: rgba(0, 0, 0, 0.3) 0 0.04em 0.1em;
       }
 
       h1 > span:nth-child(3n+2) {
@@ -52,18 +53,12 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td><a href="https://hkt.sh/wca">hkt.sh/<strong>wca</strong></a><br><a href="https://hkt.sh/wca">hkt.sh/<strong>wca</strong></a><br><a href="https://hkt.sh/wca">hkt.sh/<strong>wca</strong></a></td>
-              <td><a href="https://www.worldcubeassociation.org/persons/2018TAKA03">https://www.worldcubeassociation.org/persons/2018TAKA03</a></td>
-            </tr>
-            <tr>
-              <td><a href="https://hkt.sh/pcs">hkt.sh/<strong>pcs</strong></a><br><a href="https://hkt.sh/imascg">hkt.sh/<strong>imascg</strong></a></td>
-              <td><a href="https://pink-check.school/producer/detail/151777916">https://pink-check.school/producer/detail/151777916</a></td>
-            </tr>
-            <tr>
-              <td><a href="https://hkt.sh/wca">hkt.sh/<strong>wca</strong></a><br><a href="https://hkt.sh/wca">hkt.sh/<strong>wca</strong></a><br><a href="https://hkt.sh/wca">hkt.sh/<strong>wca</strong></a></td>
-              <td><a href="https://www.worldcubeassociation.org/persons/2018TAKA03">https://www.worldcubeassociation.org/persons/2018TAKA03</a></td>
-            </tr>
+            {{range .Entries}}
+              <tr>
+                <td><a href="https://hkt.sh/{{.Name}}">hkt.sh/<strong>{{.Name}}</strong></a></td>
+                <td><a href="{{.Url}}">{{.Url}}</a></td>
+              </tr>
+            {{end}}
           </tbody>
         </table>
       </div>
