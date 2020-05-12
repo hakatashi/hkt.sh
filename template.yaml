@@ -7,6 +7,14 @@ Globals:
   Function:
     Timeout: 5
 
+Parameters:
+  GoogleAppId:
+    Type : AWS::SSM::Parameter::Value<String>
+    Default: HKT_SH_GOOGLE_APP_CLIENT_ID
+  GoogleAppSecret:
+    Type : AWS::SSM::Parameter::Value<String>
+    Default: HKT_SH_GOOGLE_APP_CLIENT_SECRET
+
 Resources:
   HomeFunction:
     Type: AWS::Serverless::Function
@@ -24,6 +32,40 @@ Resources:
           Properties:
             Path: /
             Method: GET
+  AdminApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Auth:
+        DefaultAuthorizer: AdminCognitoAuthorizer
+        Authorizers:
+          AdminCognitoAuthorizer:
+            UserPoolArn: !GetAtt AdminCognitoUserPool.Arn
+      GatewayResponses:
+        UNAUTHORIZED:
+          StatusCode: 302
+          ResponseParameters:
+            Headers:
+              Location: context.authorizer.location
+          ResponseTemplates:
+            application/json: '{"message": $context.error.messageString}'
+  AdminFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: home/home.zip
+      Handler: home
+      Runtime: go1.x
+      Tracing: Active
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EntriesTable
+      Events:
+        CatchAll:
+          Type: Api
+          Properties:
+            RestApiId: !Ref AdminApi
+            Path: /admin
+            Method: GET
   EntryFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -40,6 +82,42 @@ Resources:
           Properties:
             Path: /{name}
             Method: GET
+  AdminCognitoUserPool:
+    Type: AWS::Cognito::UserPool
+  AdminCognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref AdminCognitoUserPool
+      GenerateSecret: false
+      AllowedOAuthFlows:
+        - implicit
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - profile
+      CallbackURLs:
+        - https://hkt.sh
+      LogoutURLs:
+        - https://hkt.sh
+      SupportedIdentityProviders:
+        - Google
+  AdminCognitoUserPoolDomain: 
+    Type: AWS::Cognito::UserPoolDomain 
+    Properties:
+      UserPoolId: !Ref AdminCognitoUserPool 
+      Domain: hkt-sh-auth
+  AdminCognitoUserPoolIdentityProvider:
+    Type: AWS::Cognito::UserPoolIdentityProvider
+    Properties:
+      UserPoolId: !Ref AdminCognitoUserPool
+      ProviderName: Google
+      ProviderDetails:
+        client_id: !Ref GoogleAppId
+        client_secret: !Ref GoogleAppSecret
+        authorize_scopes: profile email openid
+      ProviderType: Google
+      AttributeMapping:
+        email: email
   EntriesTable:
     Type: AWS::Serverless::SimpleTable
     Properties:
