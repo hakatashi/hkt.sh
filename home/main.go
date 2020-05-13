@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"html/template"
+	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -22,8 +23,9 @@ type Entry struct {
 }
 
 type HomeTemplateParams struct {
-	Entries []Entry
-	Headers string
+	Entries    []Entry
+	Headers    string
+	UserPoolId string
 }
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -59,8 +61,9 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 	var output bytes.Buffer
 	err = tpl.ExecuteTemplate(&output, "home.html.tpl", HomeTemplateParams{
-		Headers: string(body),
-		Entries: entries,
+		Headers:    string(body),
+		Entries:    entries,
+		UserPoolId: os.Getenv("AUTH_USER_POOL_CLIENT_ID"),
 	})
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err

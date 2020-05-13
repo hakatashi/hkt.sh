@@ -40,6 +40,9 @@
       <h1>
         <span>h</span><span>k</span><span>t</span><span>.</span><span>s</span><span>h</span><span>/</span>
       </h1>
+      <div class="mui--text-center">
+        <a class="mui-btn mui-btn--primary" href="https://hkt-sh-auth.auth.ap-northeast-1.amazoncognito.com/login?response_type=token&client_id={{.UserPoolId}}&scope=openid%20email&redirect_uri=https://hkt.sh/">Login</a>
+      </div>
       <div class="mui-panel mui--bg-primary mui--text-light mui--z2">
         ⚠For visitors: Consider every hkt.sh/ links as ephemeral and do not use as permalink.
       </div>

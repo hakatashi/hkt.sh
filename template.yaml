@@ -16,6 +16,22 @@ Parameters:
     Default: HKT_SH_GOOGLE_APP_CLIENT_SECRET
 
 Resources:
+  RestApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Auth:
+        Authorizers:
+          AdminCognitoAuthorizer:
+            UserPoolArn: !GetAtt AdminCognitoUserPool.Arn
+      GatewayResponses:
+        UNAUTHORIZED:
+          StatusCode: 302
+          ResponseParameters:
+            Headers:
+              Location: context.authorizer.location
+          ResponseTemplates:
+            application/json: '{"message": $context.error.messageString}'
   HomeFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -30,25 +46,12 @@ Resources:
         CatchAll:
           Type: Api
           Properties:
+            RestApiId: !Ref RestApi
             Path: /
             Method: GET
-  AdminApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      StageName: Prod
-      Auth:
-        DefaultAuthorizer: AdminCognitoAuthorizer
-        Authorizers:
-          AdminCognitoAuthorizer:
-            UserPoolArn: !GetAtt AdminCognitoUserPool.Arn
-      GatewayResponses:
-        UNAUTHORIZED:
-          StatusCode: 302
-          ResponseParameters:
-            Headers:
-              Location: context.authorizer.location
-          ResponseTemplates:
-            application/json: '{"message": $context.error.messageString}'
+      Environment:
+        Variables:
+          AUTH_USER_POOL_CLIENT_ID: !Ref AdminCognitoUserPoolClient
   AdminFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -63,9 +66,11 @@ Resources:
         CatchAll:
           Type: Api
           Properties:
-            RestApiId: !Ref AdminApi
+            RestApiId: !Ref RestApi
             Path: /admin
             Method: GET
+            Auth:
+              Authorizer: AdminCognitoAuthorizer
   EntryFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -80,6 +85,7 @@ Resources:
         CatchAll:
           Type: Api
           Properties:
+            RestApiId: !Ref RestApi
             Path: /{name}
             Method: GET
   AdminCognitoUserPool:
@@ -91,20 +97,22 @@ Resources:
       GenerateSecret: false
       AllowedOAuthFlows:
         - implicit
+      AllowedOAuthFlowsUserPoolClient: true
       AllowedOAuthScopes:
         - email
         - openid
         - profile
       CallbackURLs:
-        - https://hkt.sh
+        - https://hkt.sh/
+        - https://hkt.sh/admin
       LogoutURLs:
-        - https://hkt.sh
+        - https://hkt.sh/admin
       SupportedIdentityProviders:
         - Google
-  AdminCognitoUserPoolDomain: 
-    Type: AWS::Cognito::UserPoolDomain 
+  AdminCognitoUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
     Properties:
-      UserPoolId: !Ref AdminCognitoUserPool 
+      UserPoolId: !Ref AdminCognitoUserPool
       Domain: hkt-sh-auth
   AdminCognitoUserPoolIdentityProvider:
     Type: AWS::Cognito::UserPoolIdentityProvider
@@ -134,12 +142,9 @@ Resources:
       TableName: hkt-sh-links
 
 Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   HomeAPI:
     Description: "API Gateway endpoint URL for Prod environment for First Function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+    Value: !Sub "https://${RestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
   HomeFunction:
     Description: "First Lambda Function ARN"
     Value: !GetAtt HomeFunction.Arn
