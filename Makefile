@@ -1,11 +1,6 @@
 .PHONY: deps clean build
 
 deps:
-	go get -u -v github.com/aws/aws-lambda-go/events
-	go get -u -v github.com/aws/aws-lambda-go/lambda
-	go get -u -v github.com/aws/aws-sdk-go/aws
-	go get -u -v github.com/aws/aws-sdk-go/aws/session
-	go get -u -v github.com/aws/aws-sdk-go/service/dynamodb
 	go get -u -v github.com/aws/aws-lambda-go/cmd/build-lambda-zip
 
 clean: 
