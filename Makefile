@@ -3,8 +3,8 @@
 deps:
 	go get -u -v github.com/aws/aws-lambda-go/cmd/build-lambda-zip
 
-clean: 
-	rm -rf ./home/home
+clean:
+	rm -rf home/home entry/entry **/*.zip
 
 build: home/home.zip entry/entry.zip
 
