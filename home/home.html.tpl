@@ -72,25 +72,42 @@
       document.addEventListener('DOMContentLoaded', async () => {
         const params = new URLSearchParams(location.hash.slice(1));
         history.replaceState("", document.title, location.pathname);
+
         if (params.has('id_token')) {
           const token = params.get('id_token');
           const authData = decodeJwt(token);
 
           if (authData.email !== 'hakatasiloving@gmail.com') {
             setState('forbidden');
+          } else {
+            localStorage.setItem('token', token);
+            setState('success');
+          }
+        } else if (localStorage.getItem('token')) {
+          setState('success');
+        }
+
+        const adminFormEl = document.querySelector('.admin-form');
+        adminFormEl.addEventListener('submit', async (event) => {
+          event.preventDefault();
+
+          if (!adminFormEl.reportValidity()) {
             return;
           }
 
-          setState('success');
-          const res = await fetch('/admin', {
-            method: 'GET',
+          const token = localStorage.getItem('token');
+          const body = Object.fromEntries(new FormData(adminFormEl));
+          const res = await fetch('/admin/entry', {
+            method: 'PUT',
             headers: {
               Authorization: token,
             },
+            body: JSON.stringify(body),
           });
-          const data = await res.text();
+          const data = await res.json();
+
           console.log(data);
-        }
+        });
       });
     </script>
   </head>
@@ -107,14 +124,14 @@
           You are not hakatashi😢
         </div>
         <div class="admin-panel-success">
-          <form class="mui-form--inline">
+          <form class="admin-form mui-form--inline">
             hkt.sh/
             <div class="mui-textfield">
-              <input type="text">
+              <input name="Name" type="text" required>
             </div>
             →
             <div class="mui-textfield">
-              <input type="url">
+              <input name="Url" type="url" required>
             </div>
             <button class="mui-btn mui-btn--small mui-btn--primary">go</button>
           </form>

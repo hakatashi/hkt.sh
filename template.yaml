@@ -52,11 +52,11 @@ Resources:
       Environment:
         Variables:
           AUTH_USER_POOL_CLIENT_ID: !Ref AdminCognitoUserPoolClient
-  AdminFunction:
+  PutEntryFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: home/home.zip
-      Handler: home
+      CodeUri: put-entry/put-entry.zip
+      Handler: put-entry
       Runtime: go1.x
       Tracing: Active
       Policies:
@@ -67,8 +67,8 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref RestApi
-            Path: /admin
-            Method: GET
+            Path: /admin/entry
+            Method: PUT
             Auth:
               Authorizer: AdminCognitoAuthorizer
   EntryFunction:
