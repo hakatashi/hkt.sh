@@ -74,6 +74,15 @@
       };
 
       document.addEventListener('DOMContentLoaded', async () => {
+        if (localStorage.getItem('token')) {
+          const token = localStorage.getItem('token');
+          const authData = decodeJwt(token);
+          if (authData.exp * 1000 < Date.now()) {
+            // token expired
+            localStorage.removeItem('token');
+          }
+        }
+
         const params = new URLSearchParams(location.hash.slice(1));
         history.replaceState("", document.title, location.pathname);
 
@@ -99,10 +108,10 @@
             return;
           }
 
-          adminFormEl.children[0].disabled = true;
-
           const token = localStorage.getItem('token');
           const body = Object.fromEntries(new FormData(adminFormEl));
+          adminFormEl.children[0].disabled = true;
+
           const res = await fetch('/admin/entry', {
             method: 'PUT',
             headers: {
