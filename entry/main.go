@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"net/url"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -21,9 +22,14 @@ type Entry struct {
 }
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	name, ok := request.PathParameters["name"]
+	rawName, ok := request.PathParameters["name"]
 	if !ok {
 		return events.APIGatewayProxyResponse{}, errors.New("Name parameter not found")
+	}
+
+	name, err := url.QueryUnescape(rawName)
+	if err != nil {
+		return events.APIGatewayProxyResponse{}, err
 	}
 
 	sess, err := session.NewSession()
