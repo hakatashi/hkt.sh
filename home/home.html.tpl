@@ -13,6 +13,10 @@
         background: #eee;
       }
 
+      fieldset {
+        border: none;
+      }
+
       .mui-panel {
         overflow-x: auto;
       }
@@ -95,6 +99,8 @@
             return;
           }
 
+          adminFormEl.children[0].disabled = true;
+
           const token = localStorage.getItem('token');
           const body = Object.fromEntries(new FormData(adminFormEl));
           const res = await fetch('/admin/entry', {
@@ -105,8 +111,10 @@
             body: JSON.stringify(body),
           });
           const data = await res.json();
-
           console.log(data);
+
+          adminFormEl.reset();
+          adminFormEl.children[0].disabled = false;
         });
       });
     </script>
@@ -125,15 +133,17 @@
         </div>
         <div class="admin-panel-success">
           <form class="admin-form mui-form--inline">
-            hkt.sh/
-            <div class="mui-textfield">
-              <input name="Name" type="text" required>
-            </div>
-            →
-            <div class="mui-textfield">
-              <input name="Url" type="url" required>
-            </div>
-            <button class="mui-btn mui-btn--small mui-btn--primary">go</button>
+            <fieldset>
+              hkt.sh/
+              <div class="mui-textfield">
+                <input name="Name" type="text" required>
+              </div>
+              →
+              <div class="mui-textfield">
+                <input name="Url" type="url" required>
+              </div>
+              <button class="mui-btn mui-btn--small mui-btn--primary">go</button>
+            </fieldset>
           </form>
         </div>
       </div>
