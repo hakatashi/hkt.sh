@@ -1,4 +1,4 @@
-.PHONY: deps clean build
+.PHONY: deps clean build assets deploy
 
 deps:
 	go get -u -v github.com/aws/aws-lambda-go/cmd/build-lambda-zip
@@ -6,7 +6,15 @@ deps:
 clean:
 	rm -rf home/home entry/entry **/*.zip
 
+deploy: build sam-deploy assets
+
 build: home/home.zip entry/entry.zip put-entry/put-entry.zip
+
+sam-deploy:
+	-sam.cmd deploy
+
+assets:
+	aws s3 sync --acl public-read assets s3://$(shell aws cloudformation describe-stacks --stack-name hkt-sh --query "Stacks[0].Outputs[?OutputKey=='BucketName'].OutputValue" --output text)
 
 home/home.zip: home/main.go home/home.html.tpl
 	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o home/home ./home

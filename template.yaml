@@ -52,6 +52,7 @@ Resources:
       Environment:
         Variables:
           AUTH_USER_POOL_CLIENT_ID: !Ref AdminCognitoUserPoolClient
+          ASSETS_WEBSITE_DOMAIN_NAME: !GetAtt AssetsBucket.RegionalDomainName
   PutEntryFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -142,14 +143,12 @@ Resources:
         Name: Id
         Type: String
       TableName: hkt-sh-links
+  AssetsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
 
 Outputs:
-  HomeAPI:
-    Description: "API Gateway endpoint URL for Prod environment for First Function"
-    Value: !Sub "https://${RestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
-  HomeFunction:
-    Description: "First Lambda Function ARN"
-    Value: !GetAtt HomeFunction.Arn
-  HomeFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt HomeFunctionRole.Arn
+  BucketName:
+    Description: "Bucket name of assets"
+    Value: !Ref AssetsBucket

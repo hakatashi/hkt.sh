@@ -1,0 +1,48 @@
+body {
+  background: #eee;
+}
+
+fieldset {
+  border: none;
+}
+
+.mui-panel {
+  overflow-x: auto;
+}
+
+.mui-textfield {
+  vertical-align: baseline !important;
+}
+
+.admin-panel {
+  margin: 1em 0;
+}
+.admin-panel > * {
+  display: none;
+}
+.admin-panel.is-unauthorized .admin-panel-unauthorized {
+  display: block;
+}
+.admin-panel.is-forbidden .admin-panel-forbidden {
+  display: block;
+}
+.admin-panel.is-success .admin-panel-success {
+  display: block;
+}
+
+h1 {
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 800;
+  font-size: 20vmin;
+  line-height: 20vmin;
+  text-align: center;
+  text-shadow: rgba(0, 0, 0, 0.3) 0 0.04em 0.1em;
+}
+
+h1 > span:nth-child(3n+2) {
+  color: red;
+}
+
+h1 > span:nth-child(3n+3) {
+  color: blue;
+}

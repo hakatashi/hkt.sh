@@ -23,9 +23,10 @@ type Entry struct {
 }
 
 type HomeTemplateParams struct {
-	Entries    []Entry
-	Headers    string
-	UserPoolId string
+	Entries      []Entry
+	Headers      string
+	UserPoolId   string
+	AssetsDomain string
 }
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -61,9 +62,10 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 	var output bytes.Buffer
 	err = tpl.ExecuteTemplate(&output, "home.html.tpl", HomeTemplateParams{
-		Headers:    string(body),
-		Entries:    entries,
-		UserPoolId: os.Getenv("AUTH_USER_POOL_CLIENT_ID"),
+		Headers:      string(body),
+		Entries:      entries,
+		UserPoolId:   os.Getenv("AUTH_USER_POOL_CLIENT_ID"),
+		AssetsDomain: os.Getenv("ASSETS_WEBSITE_DOMAIN_NAME"),
 	})
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err
