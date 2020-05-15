@@ -3,8 +3,11 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"html/template"
+	"net/url"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -12,6 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"golang.org/x/net/idna"
 )
 
 var ()
@@ -30,6 +34,33 @@ type HomeTemplateParams struct {
 }
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	host := request.Headers["Host"]
+	if host != "hkt.sh" && !strings.HasSuffix(host, ".hkt.sh") {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 404,
+			Body:       "",
+		}, nil
+	}
+
+	if host != "hkt.sh" {
+		rawName := strings.TrimSuffix(host, ".hkt.sh")
+		profile := idna.New()
+		name, err := profile.ToUnicode(rawName)
+		if err != nil {
+			return events.APIGatewayProxyResponse{}, err
+		}
+
+		newUrl := fmt.Sprintf("https://hkt.sh/%v", url.QueryEscape(name))
+		return events.APIGatewayProxyResponse{
+			Body:       fmt.Sprintf("<html>\n<head><title>hkt.sh</title></head>\n<body><a href=\"%v\">moved here</a></body>\n</html>", newUrl),
+			StatusCode: 301,
+			Headers: map[string]string{
+				"Location":      newUrl,
+				"Cache-Control": "private, max-age=90",
+			},
+		}, nil
+	}
+
 	body, err := json.MarshalIndent(request.Headers, "", "\t")
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err
