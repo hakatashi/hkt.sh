@@ -62,6 +62,9 @@
           </tbody>
         </table>
       </div>
+      <div class="mui--text-center">
+        <strong>ProTip:</strong> <em>anything</em>.hkt.sh will be redirected to hkt.sh/<em>anything</em>
+      </div>
     </div>
   </body>
 </html>
