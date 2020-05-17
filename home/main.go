@@ -21,9 +21,10 @@ import (
 var ()
 
 type Entry struct {
-	Name      string
-	Url       string
-	CreatedAt int64
+	Name           string
+	UrlEncodedName string
+	Url            string
+	CreatedAt      int64
 }
 
 type HomeTemplateParams struct {
@@ -84,6 +85,10 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &entries)
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err
+	}
+
+	for _, entry := range entries {
+		entry.UrlEncodedName = url.QueryEscape(entry.Name)
 	}
 
 	tpl, err := template.ParseFiles("home.html.tpl")

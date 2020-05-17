@@ -55,7 +55,7 @@
           <tbody>
             {{range .Entries}}
               <tr>
-                <td><a href="https://hkt.sh/{{.Name}}">hkt.sh/<strong>{{.Name}}</strong></a></td>
+                <td><a href="https://hkt.sh/{{.UrlEncodedName}}">hkt.sh/<strong>{{.Name}}</strong></a></td>
                 <td><a href="{{.Url}}">{{.Url}}</a></td>
               </tr>
             {{end}}
