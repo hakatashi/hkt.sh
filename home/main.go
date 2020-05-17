@@ -87,8 +87,8 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, err
 	}
 
-	for _, entry := range entries {
-		entry.UrlEncodedName = url.QueryEscape(entry.Name)
+	for i := range entries {
+		entries[i].UrlEncodedName = url.QueryEscape(entries[i].Name)
 	}
 
 	tpl, err := template.ParseFiles("home.html.tpl")
