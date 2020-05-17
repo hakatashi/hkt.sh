@@ -63,7 +63,7 @@
         </table>
       </div>
       <div class="mui--text-center">
-        <strong>ProTip:</strong> <em>anything</em>.hkt.sh will be redirected to hkt.sh/<em>anything</em>
+        <strong>ProTip:</strong> <code><em>anything</em>.hkt.sh</code> will be redirected to <code>hkt.sh/<em>anything</em></code>
       </div>
     </div>
   </body>
