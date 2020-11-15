@@ -36,15 +36,21 @@ type HomeTemplateParams struct {
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	host := request.Headers["Host"]
-	if host != "hkt.sh" && !strings.HasSuffix(host, ".hkt.sh") {
-		return events.APIGatewayProxyResponse{
-			StatusCode: 404,
-			Body:       "",
-		}, nil
-	}
 
-	if host != "hkt.sh" {
-		rawName := strings.TrimSuffix(host, ".hkt.sh")
+	if host != "hkt.sh" && host != "hkt.si" {
+		var rawName string
+		if strings.HasSuffix(host, ".hkt.sh") {
+			rawName = strings.TrimSuffix(host, ".hkt.sh")
+		} else if strings.HasSuffix(host, ".hkt.si") {
+			rawName = strings.TrimSuffix(host, ".hkt.si")
+		}
+		if rawName == "" {
+			return events.APIGatewayProxyResponse{
+				StatusCode: 404,
+				Body:       "",
+			}, nil
+		}
+
 		profile := idna.New()
 		name, err := profile.ToUnicode(rawName)
 		if err != nil {
@@ -52,6 +58,18 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		}
 
 		newURL := fmt.Sprintf("https://hkt.sh/%v", url.QueryEscape(name))
+		return events.APIGatewayProxyResponse{
+			Body:       fmt.Sprintf("<html>\n<head><title>hkt.sh</title></head>\n<body><a href=\"%v\">moved here</a></body>\n</html>", newURL),
+			StatusCode: 301,
+			Headers: map[string]string{
+				"Location":      newURL,
+				"Cache-Control": "private, max-age=90",
+			},
+		}, nil
+	}
+
+	if host == "hkt.si" {
+		newURL := "https://hkt.sh"
 		return events.APIGatewayProxyResponse{
 			Body:       fmt.Sprintf("<html>\n<head><title>hkt.sh</title></head>\n<body><a href=\"%v\">moved here</a></body>\n</html>", newURL),
 			StatusCode: 301,
