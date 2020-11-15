@@ -15,13 +15,13 @@ import (
 
 type Entry struct {
 	Name      string
-	Url       string
+	URL       string
 	CreatedAt int64
 }
 
 type PutEntryForm struct {
 	Name string
-	Url  string
+	URL  string
 }
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -31,7 +31,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, err
 	}
 
-	if len(form.Name) <= 0 || len(form.Url) <= 0 {
+	if len(form.Name) <= 0 || len(form.URL) <= 0 {
 		return events.APIGatewayProxyResponse{}, errors.New("Invalid data")
 	}
 
@@ -44,7 +44,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 	item, err := dynamodbattribute.MarshalMap(&Entry{
 		Name:      form.Name,
-		Url:       form.Url,
+		URL:       form.URL,
 		CreatedAt: int64(time.Now().Unix()),
 	})
 	if err != nil {

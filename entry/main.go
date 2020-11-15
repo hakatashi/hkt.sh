@@ -17,7 +17,7 @@ var ()
 
 type Entry struct {
 	Name      string
-	Url       string
+	URL       string
 	CreatedAt int64
 }
 
@@ -59,15 +59,15 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, err
 	}
 
-	if entry.Url == "" {
+	if entry.URL == "" {
 		return events.APIGatewayProxyResponse{}, errors.New("Not found")
 	}
 
 	return events.APIGatewayProxyResponse{
-		Body:       fmt.Sprintf("<html>\n<head><title>hkt.sh</title></head>\n<body><a href=\"%v\">moved here</a></body>\n</html>", entry.Url),
+		Body:       fmt.Sprintf("<html>\n<head><title>hkt.sh</title></head>\n<body><a href=\"%v\">moved here</a></body>\n</html>", entry.URL),
 		StatusCode: 301,
 		Headers: map[string]string{
-			"Location":      entry.Url,
+			"Location":      entry.URL,
 			"Cache-Control": "private, max-age=90",
 		},
 	}, nil

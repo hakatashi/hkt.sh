@@ -22,15 +22,15 @@ var ()
 
 type Entry struct {
 	Name           string
-	UrlEncodedName string
-	Url            string
+	URLEncodedName string
+	URL            string
 	CreatedAt      int64
 }
 
 type HomeTemplateParams struct {
 	Entries      []Entry
 	Headers      string
-	UserPoolId   string
+	UserPoolID   string
 	AssetsDomain string
 }
 
@@ -51,12 +51,12 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 			return events.APIGatewayProxyResponse{}, err
 		}
 
-		newUrl := fmt.Sprintf("https://hkt.sh/%v", url.QueryEscape(name))
+		newURL := fmt.Sprintf("https://hkt.sh/%v", url.QueryEscape(name))
 		return events.APIGatewayProxyResponse{
-			Body:       fmt.Sprintf("<html>\n<head><title>hkt.sh</title></head>\n<body><a href=\"%v\">moved here</a></body>\n</html>", newUrl),
+			Body:       fmt.Sprintf("<html>\n<head><title>hkt.sh</title></head>\n<body><a href=\"%v\">moved here</a></body>\n</html>", newURL),
 			StatusCode: 301,
 			Headers: map[string]string{
-				"Location":      newUrl,
+				"Location":      newURL,
 				"Cache-Control": "private, max-age=90",
 			},
 		}, nil
@@ -88,7 +88,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	}
 
 	for i := range entries {
-		entries[i].UrlEncodedName = url.QueryEscape(entries[i].Name)
+		entries[i].URLEncodedName = url.QueryEscape(entries[i].Name)
 	}
 
 	tpl, err := template.ParseFiles("home.html.tpl")
@@ -100,7 +100,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	err = tpl.ExecuteTemplate(&output, "home.html.tpl", HomeTemplateParams{
 		Headers:      string(body),
 		Entries:      entries,
-		UserPoolId:   os.Getenv("AUTH_USER_POOL_CLIENT_ID"),
+		UserPoolID:   os.Getenv("AUTH_USER_POOL_CLIENT_ID"),
 		AssetsDomain: os.Getenv("ASSETS_WEBSITE_DOMAIN_NAME"),
 	})
 	if err != nil {

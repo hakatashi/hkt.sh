@@ -19,7 +19,7 @@
       </h1>
       <div class="admin-panel is-unauthorized mui--text-center">
         <div class="admin-panel-unauthorized">
-          <a class="mui-btn mui-btn--primary" href="https://hkt-sh-auth.auth.ap-northeast-1.amazoncognito.com/login?response_type=token&client_id={{.UserPoolId}}&scope=openid%20email&redirect_uri=https://hkt.sh/">Login</a>
+          <a class="mui-btn mui-btn--primary" href="https://hkt-sh-auth.auth.ap-northeast-1.amazoncognito.com/login?response_type=token&client_id={{.UserPoolID}}&scope=openid%20email&redirect_uri=https://hkt.sh/">Login</a>
         </div>
         <div class="admin-panel-forbidden mui--text-danger mui--text-headline">
           You are not hakatashi😢
@@ -33,7 +33,7 @@
               </div>
               →
               <div class="mui-textfield">
-                <input name="Url" type="url" required>
+                <input name="URL" type="url" required>
               </div>
               <button class="mui-btn mui-btn--small mui-btn--primary">go</button>
             </fieldset>
@@ -55,8 +55,8 @@
           <tbody>
             {{range .Entries}}
               <tr>
-                <td><a href="https://hkt.sh/{{.UrlEncodedName}}">hkt.sh/<strong>{{.Name}}</strong></a></td>
-                <td><a href="{{.Url}}">{{.Url}}</a></td>
+                <td><a href="https://hkt.sh/{{.URLEncodedName}}">hkt.sh/<strong>{{.Name}}</strong></a></td>
+                <td><a href="{{.URL}}">{{.URL}}</a></td>
               </tr>
             {{end}}
           </tbody>
