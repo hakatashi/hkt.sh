@@ -47,3 +47,11 @@ h1 > span:nth-child(3n+2) {
 h1 > span:nth-child(3n+3) {
   color: blue;
 }
+
+tr > td:first-child {
+  min-width: 10rem;
+}
+
+td {
+  word-break: break-word;
+}
