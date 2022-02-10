@@ -20,4 +20,4 @@ jobs:
           go-version: '1.17'
           check-latest: true
       - run: make build
-      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset
+      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name hkt-sh
