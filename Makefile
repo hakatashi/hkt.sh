@@ -18,12 +18,24 @@ assets:
 
 home/home.zip: home/main.go home/home.html.tpl
 	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o home/home ./home
-	cd home && /cygdrive/c/Users/denjj/go/bin/build-lambda-zip.exe --output home.zip home home.html.tpl
+	@if [ -f /cygdrive/c/Users/denjj/go/bin/build-lambda-zip.exe ]; then \
+		cd home && /cygdrive/c/Users/denjj/go/bin/build-lambda-zip.exe --output home.zip home home.html.tpl; \
+	else \
+		cd home && zip home.zip home home.html.tpl; \
+	fi
 
 entry/entry.zip: entry/main.go
 	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o entry/entry ./entry
-	cd entry && /cygdrive/c/Users/denjj/go/bin/build-lambda-zip.exe --output entry.zip entry
+	@if [ -f /cygdrive/c/Users/denjj/go/bin/build-lambda-zip.exe ]; then \
+		cd entry && /cygdrive/c/Users/denjj/go/bin/build-lambda-zip.exe --output entry.zip entry; \
+	else \
+		cd entry && zip entry.zip entry; \
+	fi
 
 put-entry/put-entry.zip: put-entry/main.go
 	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o put-entry/put-entry ./put-entry
-	cd put-entry && /cygdrive/c/Users/denjj/go/bin/build-lambda-zip.exe --output put-entry.zip put-entry
+	@if [ -f /cygdrive/c/Users/denjj/go/bin/build-lambda-zip.exe ]; then \
+		cd put-entry && /cygdrive/c/Users/denjj/go/bin/build-lambda-zip.exe --output put-entry.zip put-entry; \
+	else \
+		cd put-entry && zip put-entry.zip put-entry; \
+	fi
