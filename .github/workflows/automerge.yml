@@ -19,7 +19,7 @@ on:
   status: {}
   pull_request_target:
   workflow_run:
-    workflows: [Build, Test]
+    workflows: [Build, Test, Run tests]
     types: [completed]
     branches-ignore:
       - master
