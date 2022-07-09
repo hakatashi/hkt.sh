@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"net/url"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -108,6 +109,10 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	for i := range entries {
 		entries[i].URLEncodedName = url.QueryEscape(entries[i].Name)
 	}
+
+	sort.Slice(entries, func(i, j int) bool {
+		return entries[i].Name < entries[j].Name
+	})
 
 	tpl, err := template.ParseFiles("home.html.tpl")
 	if err != nil {
