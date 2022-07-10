@@ -57,6 +57,9 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{
 			Body:       "<html><head><title>hkt.sh</title></head><body><h1>The entry you requested was not found.</h1></body></html>",
 			StatusCode: 404,
+			Headers: map[string]string{
+				"Content-Type": "text/html; charset=utf-8",
+			},
 		}, nil
 	}
 
