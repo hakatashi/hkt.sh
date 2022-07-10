@@ -50,6 +50,10 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 	item, err := svc.GetItem(getParams)
 	if err != nil {
+		return events.APIGatewayProxyResponse{}, err
+	}
+
+	if item.Item == nil {
 		return events.APIGatewayProxyResponse{
 			Body:       "<html><head><title>hkt.sh</title></head><body><h1>The entry you requested was not found.</h1></body></html>",
 			StatusCode: 404,
