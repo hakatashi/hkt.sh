@@ -84,6 +84,8 @@ Resources:
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref EntriesTable
+        - DynamoDBReconfigurePolicy:
+            TableName: !Ref EntriesTable
       Events:
         CatchAll:
           Type: Api
