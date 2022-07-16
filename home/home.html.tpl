@@ -50,6 +50,7 @@
             <tr>
               <th>Short Names</th>
               <th>Link</th>
+              <th>Access Count</th>
             </tr>
           </thead>
           <tbody>
@@ -57,6 +58,7 @@
               <tr>
                 <td><a href="https://hkt.sh/{{.URLEncodedName}}">hkt.sh/<strong>{{.Name}}</strong></a></td>
                 <td><a href="{{.URL}}">{{.URL}}</a></td>
+                <td>{{.AccessCount}}</td>
               </tr>
             {{end}}
           </tbody>

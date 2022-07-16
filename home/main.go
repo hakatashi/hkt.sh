@@ -26,6 +26,7 @@ type Entry struct {
 	Name           string
 	URLEncodedName string
 	URL            string
+	AccessCount    int64
 }
 
 type HomeTemplateParams struct {
