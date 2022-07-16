@@ -84,7 +84,7 @@ Resources:
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref EntriesTable
-        - DynamoDBReconfigurePolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref EntriesTable
       Events:
         CatchAll:
