@@ -16,6 +16,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"golang.org/x/net/idna"
 )
 
@@ -25,7 +26,6 @@ type Entry struct {
 	Name           string
 	URLEncodedName string
 	URL            string
-	CreatedAt      int64
 }
 
 type HomeTemplateParams struct {
@@ -93,8 +93,19 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 	svc := dynamodb.New(sess)
 
+	filter := expression.Name("visibility").NotEqual(expression.Value("unlisted"))
+	projection := expression.NamesList(expression.Name("Name"), expression.Name("URL"))
+	expr, err := expression.NewBuilder().WithFilter(filter).WithProjection(projection).Build()
+	if err != nil {
+		return events.APIGatewayProxyResponse{}, err
+	}
+
 	result, err := svc.Scan(&dynamodb.ScanInput{
-		TableName: aws.String("hkt-sh-entries"),
+		TableName:                 aws.String("hkt-sh-entries"),
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		FilterExpression:          expr.Filter(),
+		ProjectionExpression:      expr.Projection(),
 	})
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err
