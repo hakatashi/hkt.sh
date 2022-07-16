@@ -73,6 +73,25 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, errors.New("Not found")
 	}
 
+	_, err = svc.UpdateItem(&dynamodb.UpdateItemInput{
+		TableName: aws.String("hkt-sh-entries"),
+		Key: map[string]*dynamodb.AttributeValue{
+			"Name": {
+				S: aws.String(name),
+			},
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":inc": {
+				N: aws.String("1"),
+			},
+		},
+		UpdateExpression: aws.String("ADD AccessCount :inc"),
+	})
+
+	if err != nil {
+		return events.APIGatewayProxyResponse{}, err
+	}
+
 	return events.APIGatewayProxyResponse{
 		Body:       fmt.Sprintf("<html>\n<head><title>hkt.sh</title></head>\n<body><a href=\"%v\">moved here</a></body>\n</html>", entry.URL),
 		StatusCode: 301,
