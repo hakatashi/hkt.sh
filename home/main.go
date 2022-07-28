@@ -94,7 +94,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 	svc := dynamodb.New(sess)
 
-	filter := expression.Name("visibility").NotEqual(expression.Value("unlisted"))
+	filter := expression.Name("Visibility").NotEqual(expression.Value("unlisted"))
 	projection := expression.NamesList(expression.Name("Name"), expression.Name("URL"), expression.Name("AccessCount"))
 	expr, err := expression.NewBuilder().WithFilter(filter).WithProjection(projection).Build()
 	if err != nil {
