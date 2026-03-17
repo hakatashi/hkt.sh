@@ -66,7 +66,6 @@
       </div>
       <div class="mui--text-center">
         <p><strong>ProTip:</strong> <code><em>anything</em>.hkt.sh</code> will be redirected to <code>hkt.sh/<em>anything</em></code></p>
-        <p><strong>ProTip:</strong> If <code>hkt.sh</code> is not autolinked in your chat tools, you can also use <code>hkt.<strong>si</strong></code> as an alternative.</p>
       </div>
     </div>
   </body>
