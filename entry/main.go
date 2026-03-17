@@ -126,8 +126,9 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		}, nil
 	}
 
-	// Substitute {param} placeholder in redirect URL
-	redirectURL := strings.ReplaceAll(entry.URL, "{param}", paramValue)
+	// Substitute {param} placeholder in redirect URL.
+	// Re-encode paramValue for safe embedding in URLs (API Gateway delivers decoded path params).
+	redirectURL := strings.ReplaceAll(entry.URL, "{param}", url.PathEscape(paramValue))
 
 	_, err = svc.UpdateItem(&dynamodb.UpdateItemInput{
 		TableName: aws.String("hkt-sh-entries"),
