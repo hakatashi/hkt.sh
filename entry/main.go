@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -30,6 +31,26 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	name, err := url.QueryUnescape(rawName)
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err
+	}
+
+	// Subdomain redirect: aaa.hkt.sh/bbb/ccc → hkt.sh/aaa/bbb/ccc
+	host := request.Headers["Host"]
+	var subdomainName string
+	if strings.HasSuffix(host, ".hkt.sh") {
+		subdomainName = strings.TrimSuffix(host, ".hkt.sh")
+	} else if strings.HasSuffix(host, ".hkt.si") {
+		subdomainName = strings.TrimSuffix(host, ".hkt.si")
+	}
+	if subdomainName != "" {
+		newURL := fmt.Sprintf("https://hkt.sh/%v%v", subdomainName, request.Path)
+		return events.APIGatewayProxyResponse{
+			Body:       fmt.Sprintf("<html>\n<head><title>hkt.sh</title></head>\n<body><a href=\"%v\">moved here</a></body>\n</html>", newURL),
+			StatusCode: 301,
+			Headers: map[string]string{
+				"Location":      newURL,
+				"Cache-Control": "private, max-age=90",
+			},
+		}, nil
 	}
 
 	sess, err := session.NewSession()
@@ -73,6 +94,17 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, errors.New("Not found")
 	}
 
+	// Substitute {param} placeholder if additional path segments are provided
+	redirectURL := entry.URL
+	rawParam := request.PathParameters["param"]
+	if rawParam != "" {
+		param, err := url.PathUnescape(rawParam)
+		if err != nil {
+			return events.APIGatewayProxyResponse{}, err
+		}
+		redirectURL = strings.ReplaceAll(redirectURL, "{param}", param)
+	}
+
 	_, err = svc.UpdateItem(&dynamodb.UpdateItemInput{
 		TableName: aws.String("hkt-sh-entries"),
 		Key: map[string]*dynamodb.AttributeValue{
@@ -93,10 +125,10 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	}
 
 	return events.APIGatewayProxyResponse{
-		Body:       fmt.Sprintf("<html>\n<head><title>hkt.sh</title></head>\n<body><a href=\"%v\">moved here</a></body>\n</html>", entry.URL),
+		Body:       fmt.Sprintf("<html>\n<head><title>hkt.sh</title></head>\n<body><a href=\"%v\">moved here</a></body>\n</html>", redirectURL),
 		StatusCode: 301,
 		Headers: map[string]string{
-			"Location":      entry.URL,
+			"Location":      redirectURL,
 			"Cache-Control": "private, max-age=90",
 		},
 	}, nil

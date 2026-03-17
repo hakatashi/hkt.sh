@@ -93,6 +93,12 @@ Resources:
             RestApiId: !Ref RestApi
             Path: /{name}
             Method: GET
+        CatchAllWithParam:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RestApi
+            Path: /{name}/{param+}
+            Method: GET
   AdminCognitoUserPool:
     Type: AWS::Cognito::UserPool
   AdminCognitoUserPoolClient:

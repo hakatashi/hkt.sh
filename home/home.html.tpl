@@ -65,7 +65,8 @@
         </table>
       </div>
       <div class="mui--text-center">
-        <p><strong>ProTip:</strong> <code><em>anything</em>.hkt.sh</code> will be redirected to <code>hkt.sh/<em>anything</em></code></p>
+        <p><strong>ProTip:</strong> <code><em>anything</em>.hkt.sh<em>/path</em></code> will be redirected to <code>hkt.sh/<em>anything/path</em></code></p>
+        <p><strong>ProTip:</strong> Set URL to <code>https://example.com/<strong>{param}</strong></code> to enable parameterized redirects like <code>hkt.sh/<em>name</em>/<em>value</em></code></p>
       </div>
     </div>
   </body>
