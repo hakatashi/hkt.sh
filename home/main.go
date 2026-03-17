@@ -13,14 +13,13 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"golang.org/x/net/idna"
 )
-
-var ()
 
 type Entry struct {
 	Name           string
@@ -36,7 +35,30 @@ type HomeTemplateParams struct {
 	AssetsDomain string
 }
 
-func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+type App struct {
+	db        *dynamodb.DynamoDB
+	tableName string
+}
+
+func newApp() (*App, error) {
+	cfg := &aws.Config{}
+	if endpoint := os.Getenv("DYNAMODB_ENDPOINT"); endpoint != "" {
+		cfg.Endpoint = aws.String(endpoint)
+		cfg.Credentials = credentials.NewStaticCredentials("test", "test", "")
+		cfg.Region = aws.String("ap-northeast-1")
+	}
+	sess, err := session.NewSession(cfg)
+	if err != nil {
+		return nil, err
+	}
+	tableName := os.Getenv("DYNAMODB_TABLE")
+	if tableName == "" {
+		tableName = "hkt-sh-entries"
+	}
+	return &App{db: dynamodb.New(sess), tableName: tableName}, nil
+}
+
+func (a *App) handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	host := request.Headers["Host"]
 
 	if host != "hkt.sh" && host != "hkt.si" {
@@ -87,13 +109,6 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, err
 	}
 
-	sess, err := session.NewSession()
-	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
-	}
-
-	svc := dynamodb.New(sess)
-
 	filter := expression.Name("Visibility").NotEqual(expression.Value("unlisted"))
 	projection := expression.NamesList(expression.Name("Name"), expression.Name("URL"), expression.Name("AccessCount"))
 	expr, err := expression.NewBuilder().WithFilter(filter).WithProjection(projection).Build()
@@ -101,8 +116,8 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, err
 	}
 
-	result, err := svc.Scan(&dynamodb.ScanInput{
-		TableName:                 aws.String("hkt-sh-entries"),
+	result, err := a.db.Scan(&dynamodb.ScanInput{
+		TableName:                 aws.String(a.tableName),
 		ExpressionAttributeNames:  expr.Names(),
 		ExpressionAttributeValues: expr.Values(),
 		FilterExpression:          expr.Filter(),
@@ -152,5 +167,9 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 }
 
 func main() {
-	lambda.Start(handler)
+	app, err := newApp()
+	if err != nil {
+		panic(err)
+	}
+	lambda.Start(app.handler)
 }

@@ -4,16 +4,16 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
-
-var ()
 
 type Entry struct {
 	Name      string
@@ -21,7 +21,30 @@ type Entry struct {
 	CreatedAt int64
 }
 
-func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+type App struct {
+	db        *dynamodb.DynamoDB
+	tableName string
+}
+
+func newApp() (*App, error) {
+	cfg := &aws.Config{}
+	if endpoint := os.Getenv("DYNAMODB_ENDPOINT"); endpoint != "" {
+		cfg.Endpoint = aws.String(endpoint)
+		cfg.Credentials = credentials.NewStaticCredentials("test", "test", "")
+		cfg.Region = aws.String("ap-northeast-1")
+	}
+	sess, err := session.NewSession(cfg)
+	if err != nil {
+		return nil, err
+	}
+	tableName := os.Getenv("DYNAMODB_TABLE")
+	if tableName == "" {
+		tableName = "hkt-sh-entries"
+	}
+	return &App{db: dynamodb.New(sess), tableName: tableName}, nil
+}
+
+func (a *App) handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	rawName, ok := request.PathParameters["name"]
 	if !ok {
 		return events.APIGatewayProxyResponse{}, errors.New("Name parameter not found")
@@ -32,23 +55,12 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, err
 	}
 
-	sess, err := session.NewSession()
-	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
-	}
-
-	svc := dynamodb.New(sess)
-
-	getParams := &dynamodb.GetItemInput{
-		TableName: aws.String("hkt-sh-entries"),
+	item, err := a.db.GetItem(&dynamodb.GetItemInput{
+		TableName: aws.String(a.tableName),
 		Key: map[string]*dynamodb.AttributeValue{
-			"Name": {
-				S: aws.String(name),
-			},
+			"Name": {S: aws.String(name)},
 		},
-	}
-
-	item, err := svc.GetItem(getParams)
+	})
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err
 	}
@@ -73,21 +85,16 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, errors.New("Not found")
 	}
 
-	_, err = svc.UpdateItem(&dynamodb.UpdateItemInput{
-		TableName: aws.String("hkt-sh-entries"),
+	_, err = a.db.UpdateItem(&dynamodb.UpdateItemInput{
+		TableName: aws.String(a.tableName),
 		Key: map[string]*dynamodb.AttributeValue{
-			"Name": {
-				S: aws.String(name),
-			},
+			"Name": {S: aws.String(name)},
 		},
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":inc": {
-				N: aws.String("1"),
-			},
+			":inc": {N: aws.String("1")},
 		},
 		UpdateExpression: aws.String("ADD AccessCount :inc"),
 	})
-
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err
 	}
@@ -103,5 +110,9 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 }
 
 func main() {
-	lambda.Start(handler)
+	app, err := newApp()
+	if err != nil {
+		panic(err)
+	}
+	lambda.Start(app.handler)
 }
