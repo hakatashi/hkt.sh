@@ -22,6 +22,29 @@ type Entry struct {
 	CreatedAt int64
 }
 
+func getEntry(svc *dynamodb.DynamoDB, name string) (*Entry, error) {
+	item, err := svc.GetItem(&dynamodb.GetItemInput{
+		TableName: aws.String("hkt-sh-entries"),
+		Key: map[string]*dynamodb.AttributeValue{
+			"Name": {S: aws.String(name)},
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	if item.Item == nil {
+		return nil, nil
+	}
+	entry := &Entry{}
+	if err := dynamodbattribute.UnmarshalMap(item.Item, entry); err != nil {
+		return nil, err
+	}
+	if entry.URL == "" {
+		return nil, nil
+	}
+	return entry, nil
+}
+
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	rawName, ok := request.PathParameters["name"]
 	if !ok {
@@ -60,21 +83,40 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 	svc := dynamodb.New(sess)
 
-	getParams := &dynamodb.GetItemInput{
-		TableName: aws.String("hkt-sh-entries"),
-		Key: map[string]*dynamodb.AttributeValue{
-			"Name": {
-				S: aws.String(name),
-			},
-		},
+	rawParam := request.PathParameters["param"]
+	var paramValue string
+	if rawParam != "" {
+		paramValue, err = url.PathUnescape(rawParam)
+		if err != nil {
+			return events.APIGatewayProxyResponse{}, err
+		}
 	}
 
-	item, err := svc.GetItem(getParams)
-	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
+	// Build list of candidate Names to look up, in priority order.
+	// When a param segment exists, try exact match (e.g. "yt/some_id") first,
+	// then fall back to the parameterized entry (e.g. "yt/{param}").
+	var candidates []string
+	if paramValue != "" {
+		candidates = append(candidates, name+"/"+paramValue)
+		candidates = append(candidates, name+"/{param}")
+	} else {
+		candidates = append(candidates, name)
 	}
 
-	if item.Item == nil {
+	var entry *Entry
+	var foundName string
+	for _, candidate := range candidates {
+		entry, err = getEntry(svc, candidate)
+		if err != nil {
+			return events.APIGatewayProxyResponse{}, err
+		}
+		if entry != nil {
+			foundName = candidate
+			break
+		}
+	}
+
+	if entry == nil {
 		return events.APIGatewayProxyResponse{
 			Body:       "<html><head><title>hkt.sh</title></head><body><h1>The entry you requested was not found.</h1></body></html>",
 			StatusCode: 404,
@@ -84,42 +126,19 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		}, nil
 	}
 
-	entry := Entry{}
-	err = dynamodbattribute.UnmarshalMap(item.Item, &entry)
-	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
-	}
-
-	if entry.URL == "" {
-		return events.APIGatewayProxyResponse{}, errors.New("Not found")
-	}
-
-	// Substitute {param} placeholder if additional path segments are provided
-	redirectURL := entry.URL
-	rawParam := request.PathParameters["param"]
-	if rawParam != "" {
-		param, err := url.PathUnescape(rawParam)
-		if err != nil {
-			return events.APIGatewayProxyResponse{}, err
-		}
-		redirectURL = strings.ReplaceAll(redirectURL, "{param}", param)
-	}
+	// Substitute {param} placeholder in redirect URL
+	redirectURL := strings.ReplaceAll(entry.URL, "{param}", paramValue)
 
 	_, err = svc.UpdateItem(&dynamodb.UpdateItemInput{
 		TableName: aws.String("hkt-sh-entries"),
 		Key: map[string]*dynamodb.AttributeValue{
-			"Name": {
-				S: aws.String(name),
-			},
+			"Name": {S: aws.String(foundName)},
 		},
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":inc": {
-				N: aws.String("1"),
-			},
+			":inc": {N: aws.String("1")},
 		},
 		UpdateExpression: aws.String("ADD AccessCount :inc"),
 	})
-
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err
 	}
